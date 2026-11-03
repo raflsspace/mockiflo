@@ -10,7 +10,7 @@ MockiFlo Reverse Tunnel bridges your local machine (`localhost:<port>`) with you
 
 1. **Multiplexed WebSocket Stream**: The `mockiflo` CLI establishes an outbound WebSocket connection to the MockiFlo edge gateway over HTTPS/WSS (Port 443).
 2. **Selective Forwarding**: Inbound HTTP requests hitting `https://<subdomain>.mockiflo.com` are forwarded down the active WebSocket connection to your local machine.
-3. **Local Loopback Dispatch**: The CLI forwards the request to your local service (`http://127.0.0.1:<PORT>`), captures the exact response, and sends it back up to the caller.
+3. **Local Loopback Dispatch**: The CLI forwards the request to your local service (`[http://127.0.0.1](http://127.0.0.1):<PORT>`), captures the exact response, and sends it back up to the caller.
 4. **Resilient Session Preemption**: Built-in connection takeover ensures that laptop sleep cycles or Wi-Fi network switches immediately preempt stale sessions without `409 Conflict` errors or reconnection loops.
 5. **Full Binary & Text Parity**: Transparently supports JSON, raw streams, Base64-encoded binary files (images, PDFs), and multipart payloads.
 
@@ -32,7 +32,7 @@ Pre-compiled standalone binaries are available on the [MockiFlo Releases](https:
 
 1. Download the archive for your architecture:
 ```bash
-curl -LO [https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-darwin-arm64.tar.gz](https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-darwin-arm64.tar.gz)
+curl -LO https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-darwin-arm64.tar.gz
 ```
 
 2. Extract the binary:
@@ -105,7 +105,7 @@ mockiflo tunnel <PORT> --subdomain <SUBDOMAIN> [OPTIONS]
 | `<PORT>` | — | *(Required)* | Local port to forward traffic to (e.g., `3000`, `8080`). |
 | `--subdomain` | `-s` | *(Required)* | Workspace subdomain to bind to. |
 | `--token` | `-t` | Saved config | Workspace API token or tunnel key. |
-| `--server` | — | Saved config / `https://mockiflo.com` | Base URL of the MockiFlo server. |
+| `--server` | — | Saved config / `[https://mockiflo.com](https://mockiflo.com)` | Base URL of the MockiFlo server. |
 
 ### Environment Variables
 
@@ -113,7 +113,7 @@ For headless environments and Docker containers, you can configure the CLI using
 
 ```bash
 export MOCKIFLO_TOKEN="your_workspace_token"
-export MOCKIFLO_SERVER="[https://mockiflo.com](https://mockiflo.com)"
+export MOCKIFLO_SERVER="https://mockiflo.com"
 
 # Now run without auth flags
 mockiflo tunnel 5000 --subdomain my-api
