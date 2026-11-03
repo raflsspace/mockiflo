@@ -2,16 +2,16 @@
 
 > Expose local development servers to your MockiFlo cloud workspace via duplex WebSockets.
 
-MockiFlo Reverse Tunnel bridges your local machine (`localhost:<port>`) with your dedicated cloud subdomain. It enables you to receive live third-party webhooks (Stripe, GitHub, Shopify), test frontend-to-backend integrations, and share work-in-progress APIs without opening firewall ports, configuring router NAT, or exposing public IP addresses.
+MockiFlo Reverse Tunnel bridges your local machine (localhost:port) with your dedicated cloud subdomain. It enables you to receive live third-party webhooks (Stripe, GitHub, Shopify), test frontend-to-backend integrations, and share work-in-progress APIs without opening firewall ports, configuring router NAT, or exposing public IP addresses.
 
 ---
 
 ## ⚡ How It Works
 
-1. **Multiplexed WebSocket Stream**: The `mockiflo` CLI establishes an outbound WebSocket connection to the MockiFlo edge gateway over HTTPS/WSS (Port 443).
-2. **Selective Forwarding**: Inbound HTTP requests hitting `https://<subdomain>.mockiflo.com` are forwarded down the active WebSocket connection to your local machine.
-3. **Local Loopback Dispatch**: The CLI forwards the request to your local service (`[http://127.0.0.1](http://127.0.0.1):<PORT>`), captures the exact response, and sends it back up to the caller.
-4. **Resilient Session Preemption**: Built-in connection takeover ensures that laptop sleep cycles or Wi-Fi network switches immediately preempt stale sessions without `409 Conflict` errors or reconnection loops.
+1. **Multiplexed WebSocket Stream**: The mockiflo CLI establishes an outbound WebSocket connection to the MockiFlo edge gateway over HTTPS/WSS (Port 443).
+2. **Selective Forwarding**: Inbound HTTP requests hitting your workspace subdomain are forwarded down the active WebSocket connection to your local machine.
+3. **Local Loopback Dispatch**: The CLI forwards the request to your local service (http://127.0.0.1:PORT), captures the exact response, and sends it back up to the caller.
+4. **Resilient Session Preemption**: Built-in connection takeover ensures that laptop sleep cycles or Wi-Fi network switches immediately preempt stale sessions without 409 Conflict errors or reconnection loops.
 5. **Full Binary & Text Parity**: Transparently supports JSON, raw streams, Base64-encoded binary files (images, PDFs), and multipart payloads.
 
 ---
@@ -28,16 +28,23 @@ Pre-compiled standalone binaries are available on the [MockiFlo Releases](https:
 | **Linux** | ARM64 / aarch64 | `mockiflo-linux-arm64.tar.gz` |
 | **Windows** | x86_64 | `mockiflo-windows-x86_64.zip` |
 
-### Manual Installation (macOS & Linux)
+---
+
+### macOS Installation
 
 1. Download the archive for your architecture:
 ```bash
+# For Apple Silicon
 curl -LO https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-darwin-arm64.tar.gz
+
+# For Intel
+curl -LO https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-darwin-x86_64.tar.gz
 ```
 
-2. Extract the binary:
+2. Extract and remove the macOS Gatekeeper quarantine attribute:
 ```bash
-tar -xzf mockiflo-darwin-arm64.tar.gz
+tar -xzf mockiflo-darwin-*.tar.gz
+xattr -d com.apple.quarantine mockiflo
 ```
 
 3. Make it executable and place it in your system PATH:
@@ -51,11 +58,55 @@ sudo mv mockiflo /usr/local/bin/
 mockiflo --version
 ```
 
+---
+
+### Linux Installation
+
+1. Download the archive for your architecture:
+```bash
+# For x86_64 / amd64
+curl -LO https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-linux-x86_64.tar.gz
+
+# For ARM64 / aarch64
+curl -LO https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-linux-arm64.tar.gz
+```
+
+2. Extract and install to your PATH:
+```bash
+tar -xzf mockiflo-linux-*.tar.gz
+chmod +x mockiflo
+sudo mv mockiflo /usr/local/bin/
+```
+
+3. Verify installation:
+```bash
+mockiflo --version
+```
+
+---
+
 ### Windows Installation
 
-1. Download `mockiflo-windows-x86_64.zip` from Releases.
-2. Extract `mockiflo.exe` to a directory in your system PATH (e.g., `C:\Program Files\MockiFlo\` or user folder).
-3. Run `mockiflo.exe --version` in PowerShell or Command Prompt.
+Open **PowerShell** and execute the following commands:
+
+1. Download and extract the archive:
+```powershell
+Invoke-WebRequest -Uri "https://github.com/raflsspace/mockiflo/releases/latest/download/mockiflo-windows-x86_64.zip" -OutFile "mockiflo.zip"
+Expand-Archive -Path "mockiflo.zip" -DestinationPath "$HOME\bin" -Force
+Remove-Item "mockiflo.zip"
+```
+
+2. Add the destination directory to your User PATH:
+```powershell
+setx PATH "$env:Path;$HOME\bin"
+```
+
+3. Verify installation:
+```powershell
+mockiflo --version
+```
+
+*(Alternatively, extract mockiflo.exe manually and move it into C:\Windows\System32 or any directory currently registered in your system PATH).*
 
 ---
 
@@ -63,16 +114,16 @@ mockiflo --version
 
 ### Method 1: Two-Step Setup (Recommended)
 
-Save your workspace credentials once to `~/.mockiflo/config.json`:
+Save your workspace credentials once to ~/.mockiflo/config.json:
 
 ```bash
-mockiflo login <YOUR_WORKSPACE_TOKEN>
+mockiflo login YOUR_WORKSPACE_TOKEN
 ```
 
 Start forwarding inbound subdomain traffic to your local server (e.g., port 5000):
 
 ```bash
-mockiflo tunnel 5000 --subdomain <YOUR_SUBDOMAIN>
+mockiflo tunnel 5000 --subdomain YOUR_SUBDOMAIN
 ```
 
 ### Method 2: Single Command (CI/CD or Ephemeral Shells)
@@ -80,7 +131,7 @@ mockiflo tunnel 5000 --subdomain <YOUR_SUBDOMAIN>
 Pass the token directly via CLI flag without persisting to disk:
 
 ```bash
-mockiflo tunnel 5000 --subdomain <YOUR_SUBDOMAIN> --token <YOUR_WORKSPACE_TOKEN>
+mockiflo tunnel 5000 --subdomain YOUR_SUBDOMAIN --token YOUR_WORKSPACE_TOKEN
 ```
 
 ---
@@ -94,18 +145,21 @@ mockiflo tunnel 5000 --subdomain <YOUR_SUBDOMAIN> --token <YOUR_WORKSPACE_TOKEN>
 mockiflo --help
 
 # Save auth token
-mockiflo login <TOKEN> [--server <URL>]
+mockiflo login YOUR_TOKEN
+
+# Save auth token with custom server target
+mockiflo login YOUR_TOKEN --server https://mockiflo.com
 
 # Open reverse tunnel
-mockiflo tunnel <PORT> --subdomain <SUBDOMAIN> [OPTIONS]
+mockiflo tunnel 5000 --subdomain YOUR_SUBDOMAIN
 ```
 
-| Flag | Shorthand | Default | Description |
+| Parameter | Shorthand | Status | Description |
 | :--- | :--- | :--- | :--- |
-| `<PORT>` | — | *(Required)* | Local port to forward traffic to (e.g., `3000`, `8080`). |
-| `--subdomain` | `-s` | *(Required)* | Workspace subdomain to bind to. |
-| `--token` | `-t` | Saved config | Workspace API token or tunnel key. |
-| `--server` | — | Saved config / `[https://mockiflo.com](https://mockiflo.com)` | Base URL of the MockiFlo server. |
+| `PORT` | — | Required | Local port to forward traffic to (e.g., 3000, 8080). |
+| `--subdomain` | `-s` | Required | Workspace subdomain alias to bind to. |
+| `--token` | `-t` | Optional | Workspace API token or tunnel key (overrides saved config). |
+| `--server` | — | Optional | Base URL of the MockiFlo server (default: https://mockiflo.com). |
 
 ### Environment Variables
 
@@ -115,7 +169,7 @@ For headless environments and Docker containers, you can configure the CLI using
 export MOCKIFLO_TOKEN="your_workspace_token"
 export MOCKIFLO_SERVER="https://mockiflo.com"
 
-# Now run without auth flags
+# Run directly without auth flags
 mockiflo tunnel 5000 --subdomain my-api
 ```
 
