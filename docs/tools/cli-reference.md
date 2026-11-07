@@ -6,6 +6,24 @@ The `mockiflo` binary is a standalone executable built in Rust. It requires zero
 
 ---
 
+## ⚡ Installation
+
+Install the CLI binary automatically using your platform's one-line installer:
+
+### macOS & Linux
+```bash
+curl -fsSL https://raw.githubusercontent.com/raflsspace/mockiflo/main/install.sh | bash
+```
+
+### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/raflsspace/mockiflo/main/install.ps1 | iex
+```
+
+> Pre-built standalone binaries are also available for manual download on [GitHub Releases](https://github.com/raflsspace/mockiflo/releases/latest).
+
+---
+
 ## 📦 Global Options
 
 ```bash

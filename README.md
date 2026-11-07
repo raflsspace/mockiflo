@@ -6,6 +6,42 @@ A lightweight testing utility to inspect live HTTP traffic, debug webhooks, and 
 
 ---
 
+## ⚡ Quick Installation (CLI Companion)
+
+Install the standalone MockiFlo CLI companion tool directly via your terminal:
+
+### macOS & Linux
+```bash
+curl -fsSL https://raw.githubusercontent.com/raflsspace/mockiflo/main/install.sh | bash
+```
+
+### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/raflsspace/mockiflo/main/install.ps1 | iex
+```
+
+> **Manual Downloads:** Standalone pre-compiled binaries are also available directly on [GitHub Releases](https://github.com/raflsspace/mockiflo/releases/latest).
+
+---
+
+## 🚀 Quickstart
+
+### 1. Authenticate CLI
+Get your workspace token from the MockiFlo Web Console, then run:
+```bash
+mockiflo login <YOUR_WORKSPACE_TOKEN>
+```
+*Credentials are stored locally in `~/.mockiflo/config.json`.*
+
+### 2. Start Reverse Tunnel
+Expose your local development port to your MockiFlo subdomain:
+```bash
+mockiflo tunnel 5000 -s <subdomain>
+```
+All inbound requests to `https://<subdomain>.mockiflo.com` will be forwarded directly to `http://127.0.0.1:5000` over a duplex WebSocket connection.
+
+---
+
 ## ⚡ Core Capabilities
 
 MockiFlo bridges cloud workspace mocking with local environment debugging through six core pillars:
